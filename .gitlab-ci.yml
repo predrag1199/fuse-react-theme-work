@@ -1,0 +1,27 @@
+image: node:8.12.0
+
+variables:
+  CI_SSHPRIVATEKEY = 'test'
+
+cache:
+  paths:
+    - node_modules/
+
+before_script:
+   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+   - eval $(ssh-agent -s)
+   - echo "$CI_SSHPRIVATEKEY" | tr -d '\r' | ssh-add - > /dev/null
+   - mkdir -p ~/.ssh
+   - chmod 700 ~/.ssh
+   - ssh-keyscan stockholm.briiz.com >> ~/.ssh/known_hosts
+   - chmod 644 ~/.ssh/known_hosts
+
+deploy_production:
+  only:
+    - master
+  script:
+    - yarn install
+    - CI="" REACT_APP_DEPLOYTIME=`date -Iminutes` yarn build
+    - cd build
+    - ssh ci-deploy@stockholm.briiz.com 'rm -rf /home/ci-deploy/web'
+    - scp -o stricthostkeychecking=no -r . ci-deploy@stockholm.briiz.com:/home/ci-deploy/web

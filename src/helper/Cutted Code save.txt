@@ -1,0 +1,29 @@
+// React Table First Checkbox Column
+{
+    Header   : () => (
+        <Checkbox
+                onClick={(event) => {
+                        event.stopPropagation();
+                }}
+                onChange={(event) => {
+                        event.target.checked ? selectAllContacts() : deSelectAllContacts();
+                }}
+                checked={selectedContactIds.length === Object.keys(contacts).length && selectedContactIds.length > 0}
+                indeterminate={selectedContactIds.length !== Object.keys(contacts).length && selectedContactIds.length > 0}
+        />
+        ),
+        accessor : "",
+        Cell     : row => {
+                return (<Checkbox
+                                onClick={(event) => {
+                                        event.stopPropagation();
+                                }}
+                                checked={selectedContactIds.includes(row.value.userId)}
+                                onChange={() => toggleInSelectedContacts(row.value.userId)}
+                        />
+                )
+        },
+        className: "justify-center",
+        sortable : false,
+        width    : 64
+},
